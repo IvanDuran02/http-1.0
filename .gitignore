@@ -1,0 +1,16 @@
+# ignore every directory that starts with “bazel-”
+bazel-*/
+
+# explicit output dirs (just in case)
+bazel-bin/
+bazel-out/
+bazel-testlogs/
+bazel-genfiles/
+
+# ignore user-specific overrides
+.bazelrc.user
+
+# IDE cruft
+.idea/
+*.iml
+
