@@ -1,4 +1,5 @@
 #include "parser/parser.h"
+#include "http_connection/http_connection.h"
 #include <cassert>
 #include <iostream>
 
@@ -22,4 +23,5 @@ void test_simple_get() {
 int main() {
     test_simple_get();
     std::cout << "Tests passed" << std::endl;
+    http_connection();
 }
