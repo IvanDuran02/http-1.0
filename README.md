@@ -1,6 +1,5 @@
 ### HTTP Server
-- Authors: Ivan Duran
-- Assistant: Ariel Khoutorsky
+- Authors: Ivan Duran, Ariel Khoutorsky
 
 #### Details:
 - Http 1.0 Server
