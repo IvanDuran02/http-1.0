@@ -1,0 +1,19 @@
+{
+    "configurations": [
+      {
+        "name": "WSL",
+        "includePath": [
+          "${workspaceFolder}/**",
+          "/usr/include",
+          "/usr/include/c++/11",                     // adjust version if different
+          "/usr/lib/clang/14/include"                // adjust version if needed
+        ],
+        "defines": [],
+        "compilerPath": "/usr/bin/clang++",
+        "cStandard": "c11",
+        "cppStandard": "c++17",
+        "intelliSenseMode": "linux-clang-x64"
+      }
+    ],
+    "version": 4
+  }  
