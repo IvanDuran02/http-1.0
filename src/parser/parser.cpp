@@ -14,6 +14,8 @@ HttpMethod HttpParser::parse_method(const std::string &token) const {
     return HttpMethod::UNKNOWN;
 }
 
+HttpParser::HttpParser(HttpParserMode mode) : mode_(mode) {}
+
 // Feed will push new bytes into parser
 void HttpParser::feed(const std::string &data) { buffer_ += data; }
 
@@ -29,22 +31,28 @@ bool HttpParser::parse(HttpMessage &out) {
 
     // Tokenize the start line
     std::istringstream line(start);
-    std::string method_token, uri, version;
-    if (!(line >> method_token >> uri >> version)) {
+    std::string token1, token2, token3;
+    if (!(line >> token1 >> token2 >> token3)) {
         throw std::runtime_error("Malformed start-line");
     }
 
-    // Populate the enum and URI
-    out.method = parse_method(method_token);
-    out.request_uri = std::move(uri);
-
-    // reject unsupported methods
-    if (out.method == HttpMethod::UNKNOWN) {
-        throw std::runtime_error("Unsupported HTTP Method: " + method_token);
-    }
-
-    // Parse Headers
     out.headers.clear();
+    
+    if (mode_ == HttpParserMode::Request) {
+        out.method = parse_method(token1);
+        if (out.method == HttpMethod::UNKNOWN) {
+            throw std::runtime_error("Unsupported HTTP Method: " + token1);
+        }
+        out.request_uri = token2;
+        out.start_line = token1 + " " + token2 + " " + token3;
+    } else { // Response mode
+        out.method = HttpMethod::UNKNOWN; // Not relevant for response
+        out.request_uri = "";             // Not relevant for response
+        out.start_line = token1 + " " + token2 + " " + token3;
+        out.headers["Status"] = token2;
+        out.headers["Reason"] = token3;
+    }    
+
     while (true) {
         // Look for the next "\r\n"
         auto eol = buffer_.find("\r\n");

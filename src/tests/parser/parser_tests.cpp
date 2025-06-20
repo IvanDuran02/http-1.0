@@ -5,7 +5,7 @@
 #include <stdexcept>
 
 void test_simple_get() {
-    HttpParser parser;
+    HttpParser parser(HttpParserMode::Request);
     HttpMessage msg;
 
     const std::string raw = "GET /foo HTTP/1.0\r\n"
@@ -19,6 +19,27 @@ void test_simple_get() {
     assert(msg.request_uri == "/foo");
     assert(msg.headers["Host"] == "example.com");
     assert(msg.body.empty());
+}
+
+void test_simple_response() {
+    HttpParser parser(HttpParserMode::Response);
+    HttpMessage msg;
+
+    const std::string raw = "HTTP/1.0 200 OK\r\n"
+                            "Content-Length: 5\r\n"
+                            "Content-Type: text/plain\r\n"
+                            "\r\n"
+                            "Hello";
+
+    parser.feed(raw);
+    bool ok = parser.parse(msg);
+    assert(ok);
+    assert(msg.start_line == "HTTP/1.0 200 OK");
+    assert(msg.headers["Content-Length"] == "5");
+    assert(msg.headers["Content-Type"] == "text/plain");
+    assert(msg.headers["Status"] == "200");
+    assert(msg.headers["Reason"] == "OK");
+    assert(msg.body == "Hello");
 }
 
 void test_post_in_fragments() {
@@ -55,6 +76,7 @@ void test_unsupported_method() {
 
 int main() {
     test_simple_get();
+    test_simple_response();
     test_post_in_fragments();
     test_unsupported_method();
 
