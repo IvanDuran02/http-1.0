@@ -5,7 +5,7 @@ bazel-*/
 bazel-bin/
 bazel-out/
 bazel-testlogs/
-bazel-genfiles/
+bazel-http-1.0/
 
 # ignore user-specific overrides
 .bazelrc.user
