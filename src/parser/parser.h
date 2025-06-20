@@ -15,8 +15,8 @@ struct HttpMessage {
 
 class HttpParser {
   public:
-    // default response type parser
-    explicit HttpParser(HttpParserMode mode = HttpParserMode::Response);
+    // default request type parser
+    explicit HttpParser(HttpParserMode mode = HttpParserMode::Request);
     void feed(const std::string &data);
     bool parse(HttpMessage &out);
 
