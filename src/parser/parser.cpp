@@ -29,29 +29,33 @@ bool HttpParser::parse(HttpMessage &out) {
     std::string start = buffer_.substr(0, end_of_line);
     buffer_.erase(0, end_of_line + 2);
 
-    // Tokenize the start line
-    std::istringstream line(start);
-    std::string token1, token2, token3;
-    if (!(line >> token1 >> token2 >> token3)) {
-        throw std::runtime_error("Malformed start-line");
-    }
-
     out.headers.clear();
     
     if (mode_ == HttpParserMode::Request) {
-        out.method = parse_method(token1);
-        if (out.method == HttpMethod::UNKNOWN) {
-            throw std::runtime_error("Unsupported HTTP Method: " + token1);
+        std::istringstream line(start);
+        std::string method_token, uri, version;
+        if (!(line >> method_token >> uri >> version)) {
+            throw std::runtime_error("Malformed request line");
         }
-        out.request_uri = token2;
-        out.start_line = token1 + " " + token2 + " " + token3;
-    } else { // Response mode
-        out.method = HttpMethod::UNKNOWN; // Not relevant for response
-        out.request_uri = "";             // Not relevant for response
-        out.start_line = token1 + " " + token2 + " " + token3;
-        out.headers["Status"] = token2;
-        out.headers["Reason"] = token3;
-    }    
+        out.method = parse_method(method_token);
+        if (out.method == HttpMethod::UNKNOWN) {
+            throw std::runtime_error("Unsupported HTTP Method: " + method_token);
+        }
+        out.request_uri = uri;
+        out.start_line = method_token + " " + uri + " " + version;
+
+    } else if (mode_ == HttpParserMode::Response) {
+        std::istringstream line(start);
+        std::string version, status, reason;
+        if (!(line >> version >> status >> reason)) {
+            throw std::runtime_error("Malformed status-line");
+        }
+        out.start_line = version + " " + status + " " + reason;
+        out.headers["Status"] = status;
+        out.headers["Reason"] = reason;
+    } else {
+        throw std::runtime_error("Unsupported HTTP parser mode");
+    }
 
     while (true) {
         // Look for the next "\r\n"
