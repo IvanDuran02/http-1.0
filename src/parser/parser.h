@@ -21,7 +21,14 @@ class HttpParser {
     bool parse(HttpMessage &out);
 
   private:
+    enum class ParsePhase { StartLine, Headers, Body };
     std::string buffer_;
     HttpParserMode mode_;
     HttpMethod parse_method(const std::string &token) const;
+
+    ParsePhase phase_ = ParsePhase::StartLine;
+    std::string current_start_line_;
+    std::unordered_map<std::string, std::string> current_headers_;
+    size_t body_length_ = 0;
+    HttpMessage in_progress_;
 };
